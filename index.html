@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIDI Proby Connector</title>
+    <style>
+        :root {
+            --primary: #1F8CE6;
+            --primary-hover: #1876C4;
+            --primary-light: rgba(31, 140, 230, 0.08);
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --bg-main: #FFFFFF;
+            --bg-secondary: #F2F4F5;
+            --bg-page: #F7F8FA;
+            --border: #E5E8EB;
+            --border-light: #EEF0F2;
+            --success: #2ECC71;
+            --success-bg: rgba(46, 204, 113, 0.08);
+            --danger: #E74C3C;
+            --diff-add: rgba(31, 140, 230, 0.07);
+            --diff-add-border: rgba(31, 140, 230, 0.3);
+            --diff-add-strong: rgba(31, 140, 230, 0.14);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-pill: 999px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            background: var(--bg-page);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: var(--bg-main);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .header-logo svg { width: 26px; height: 26px; }
+        .header-title { font-size: 17px; font-weight: 700; }
+        .header-title span { color: var(--primary); }
+        .header-badge {
+            font-size: 11px; font-weight: 600; color: var(--primary);
+            background: var(--primary-light); padding: 3px 10px; border-radius: var(--radius-pill);
+        }
+
+        /* ── Stepper ── */
+        .stepper {
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px 32px 0; max-width: 520px; margin: 0 auto;
+        }
+        .step-item { display: flex; align-items: center; gap: 8px; }
+        .step-circle {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+            border: 2px solid var(--border); color: var(--text-muted);
+            background: var(--bg-main); transition: all var(--transition); flex-shrink: 0;
+        }
+        .step-label { font-size: 13px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+        .step-line { width: 48px; height: 2px; background: var(--border); margin: 0 8px; flex-shrink: 0; transition: background var(--transition); }
+        .step-item.active .step-circle { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .step-item.active .step-label { color: var(--primary); font-weight: 600; }
+        .step-item.done .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
+        .step-item.done .step-label { color: var(--success); }
+        .step-line.done { background: var(--success); }
+        .step-line.active { background: var(--primary); }
+
+        /* ── Main ── */
+        .main { max-width: 1280px; margin: 0 auto; padding: 24px 32px 48px; }
+        .main.narrow { max-width: 720px; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--bg-main); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
+            padding: 32px; animation: fadeUp 0.35s ease;
+        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .card-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+
+        /* ── Compact Upload Bar ── */
+        .upload-bar {
+            display: flex; align-items: center; gap: 16px;
+            padding: 14px 20px; border: 2px dashed var(--border);
+            border-radius: var(--radius-md); background: var(--bg-secondary);
+            cursor: pointer; transition: all var(--transition);
+        }
+        .upload-bar:hover, .upload-bar.dragover { border-color: var(--primary); background: var(--primary-light); }
+        .upload-bar svg { width: 24px; height: 24px; color: var(--text-muted); flex-shrink: 0; }
+        .upload-bar.dragover svg { color: var(--primary); }
+        .upload-bar-text { font-size: 14px; color: var(--text-secondary); }
+        .upload-bar-text strong { color: var(--primary); }
+        .upload-bar-text .supported { font-size: 12px; color: var(--text-muted); margin-left: 8px; }
+
+        .upload-bar-file {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 16px; background: var(--bg-secondary);
+            border-radius: var(--radius-sm); border: 1px solid var(--border-light);
+        }
+        .upload-bar-file .file-icon {
+            width: 32px; height: 32px; background: var(--primary-light);
+            border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .upload-bar-file .file-icon svg { width: 16px; height: 16px; color: var(--primary); }
+        .upload-bar-file .file-name { font-size: 13px; font-weight: 600; }
+        .upload-bar-file .file-size { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+        .upload-bar-file .file-remove {
+            margin-left: auto; width: 28px; height: 28px; border: none; background: none;
+            cursor: pointer; color: var(--text-muted); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: all var(--transition);
+        }
+        .upload-bar-file .file-remove:hover { background: rgba(231,76,60,0.1); color: var(--danger); }
+
+        .upload-actions {
+            display: flex; align-items: center; justify-content: space-between; margin-top: 16px;
+        }
+
+        /* ── Side-by-side Panels ── */
+        .diff-area { margin-top: 24px; }
+        .diff-header {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+        }
+        .diff-legend {
+            display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-muted);
+        }
+        .diff-legend-item { display: flex; align-items: center; gap: 6px; }
+        .diff-legend-dot {
+            width: 10px; height: 10px; border-radius: 3px;
+        }
+        .diff-legend-dot.added { background: var(--diff-add-border); }
+        .diff-legend-dot.kept { background: var(--border); }
+
+        .diff-panels {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .diff-panel {
+            border-radius: var(--radius-md); border: 1px solid var(--border-light);
+            overflow: hidden; display: flex; flex-direction: column;
+        }
+        .diff-panel-header {
+            padding: 10px 16px; font-size: 13px; font-weight: 600;
+            border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 8px;
+        }
+        .diff-panel-header.original { background: var(--bg-secondary); color: var(--text-secondary); }
+        .diff-panel-header.proby { background: var(--primary-light); color: var(--primary); }
+        .diff-panel-header .panel-tag {
+            font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--radius-pill);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .diff-panel-header.original .panel-tag { background: var(--border); color: var(--text-muted); }
+        .diff-panel-header.proby .panel-tag { background: var(--primary); color: #fff; }
+
+        .diff-panel-body {
+            padding: 24px; font-size: 13px; line-height: 1.8;
+            overflow-y: auto; max-height: 560px; flex: 1;
+            background: var(--bg-main);
+        }
+
+        /* ── Original panel markdown rendering ── */
+        .diff-panel-body.original-body { color: var(--text-secondary); }
+        .diff-panel-body h1 { font-size: 18px; margin-bottom: 12px; }
+        .diff-panel-body h2 { font-size: 15px; margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-light); }
+        .diff-panel-body h3 { font-size: 14px; margin: 14px 0 6px; color: var(--text-secondary); }
+        .diff-panel-body p { margin-bottom: 8px; }
+        .diff-panel-body ul, .diff-panel-body ol { margin: 6px 0 6px 18px; }
+        .diff-panel-body li { margin-bottom: 3px; }
+
+        /* ── Proby panel ── */
+        .diff-panel-body .q-block {
+            background: var(--bg-secondary); border-left: 3px solid var(--primary);
+            padding: 14px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 10px 0;
+        }
+        .diff-panel-body .q-block strong { color: var(--primary); }
+        .diff-panel-body .tag {
+            display: inline-block; font-size: 10px; font-weight: 700;
+            padding: 2px 7px; border-radius: var(--radius-pill); margin-bottom: 4px;
+        }
+        .diff-panel-body .tag.seed { color: #8E44AD; background: rgba(142, 68, 173, 0.08); }
+        .diff-panel-body .tag.insight { color: var(--primary); background: var(--primary-light); }
+        .diff-panel-body .seed-question {
+            font-size: 14px; font-weight: 600; line-height: 1.6;
+            color: var(--text-primary); margin: 6px 0 4px;
+        }
+
+        /* ── Diff highlights (Proby panel) ── */
+        .diff-added {
+            background: var(--diff-add);
+            border-left: 3px solid var(--diff-add-border);
+            padding: 6px 12px; margin: 4px -12px; border-radius: 0 4px 4px 0;
+            position: relative;
+        }
+        .diff-added::before {
+            content: '+'; position: absolute; left: -1px; top: 6px;
+            font-size: 10px; font-weight: 700; color: var(--primary); opacity: 0.5;
+        }
+        .diff-added-strong {
+            background: var(--diff-add-strong);
+            border-left: 3px solid var(--primary);
+            padding: 8px 14px; margin: 6px -12px; border-radius: 0 6px 6px 0;
+        }
+        .diff-stats {
+            display: inline-flex; align-items: center; gap: 12px;
+            font-size: 12px; color: var(--text-muted);
+            background: var(--bg-secondary); padding: 6px 14px;
+            border-radius: var(--radius-pill); margin-bottom: 16px;
+        }
+        .diff-stats .stat-add { color: var(--primary); font-weight: 600; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 24px; font-size: 14px; font-weight: 600;
+            border: none; border-radius: var(--radius-pill); cursor: pointer; transition: all var(--transition);
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-primary:disabled { background: var(--border); cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--text-muted); background: var(--bg-secondary); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #27AE60; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-group { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+        .btn-group-right { display: flex; gap: 10px; }
+
+        /* ── Approval Banner ── */
+        .approval-banner {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; background: var(--success-bg);
+            border-radius: var(--radius-sm); margin-top: 16px;
+        }
+        .approval-banner svg { width: 22px; height: 22px; color: var(--success); flex-shrink: 0; }
+        .approval-banner-text { font-size: 14px; font-weight: 500; color: #27AE60; }
+
+        /* ── Input ── */
+        .input-group { margin-bottom: 16px; }
+        .input-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+        .input-field {
+            width: 100%; padding: 12px 16px; font-size: 14px;
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            outline: none; transition: border-color var(--transition); background: var(--bg-main); font-family: inherit;
+        }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .input-field::placeholder { color: var(--text-muted); }
+        .input-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── Email Chips ── */
+        .email-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .email-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px; background: var(--primary-light); color: var(--primary);
+            font-size: 13px; font-weight: 500; border-radius: var(--radius-pill);
+        }
+        .email-chip button { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 16px; line-height: 1; opacity: 0.6; }
+        .email-chip button:hover { opacity: 1; }
+
+        /* ── Sending Overlay ── */
+        .sending-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.92);
+            z-index: 200; justify-content: center; align-items: center; flex-direction: column; gap: 20px;
+        }
+        .sending-overlay.active { display: flex; }
+        .spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .sending-text { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+        /* ── Complete ── */
+        .complete-icon {
+            width: 72px; height: 72px; background: var(--success-bg); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+        }
+        .complete-icon svg { width: 36px; height: 36px; color: var(--success); }
+        .complete-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+        .complete-desc { font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 28px; }
+        .complete-emails { text-align: center; margin-bottom: 28px; }
+
+        .upload-bar-loading {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; background: var(--primary-light);
+            border-radius: var(--radius-sm); border: 1px solid var(--diff-add-border);
+            font-size: 13px; color: var(--primary); font-weight: 500;
+        }
+        .upload-bar-loading .mini-spinner {
+            width: 16px; height: 16px; border: 2px solid var(--diff-add-border);
+            border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+
+        .hidden { display: none !important; }
+
+        /* ── Responsive ── */
+        @media (max-width: 860px) {
+            .diff-panels { grid-template-columns: 1fr; }
+            .main { padding: 20px 16px 40px; }
+            .card { padding: 24px 18px; }
+        }
+        @media (max-width: 640px) {
+            .header { padding: 0 16px; }
+            .stepper { padding: 20px 16px 0; }
+            .step-label { display: none; }
+            .step-line { width: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-logo">
+        <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#1F8CE6"/><path d="M8 8h12v2H8zM8 13h8v2H8zM8 18h10v2H8z" fill="#fff"/></svg>
+        <div class="header-title">RIDI <span>Proby</span> Connector</div>
+    </div>
+    <div class="header-badge">Beta</div>
+</header>
+
+<nav class="stepper" id="stepper">
+    <div class="step-item active" data-step="1">
+        <div class="step-circle">1</div>
+        <span class="step-label">업로드 & 프리뷰</span>
+    </div>
+    <div class="step-line" data-line="1"></div>
+    <div class="step-item" data-step="2">
+        <div class="step-circle">2</div>
+        <span class="step-label">이메일 발송</span>
+    </div>
+    <div class="step-line" data-line="2"></div>
+    <div class="step-item" data-step="3">
+        <div class="step-circle">3</div>
+        <span class="step-label">완료</span>
+    </div>
+</nav>
+
+<main class="main" id="main-container">
+
+    <!-- Step 1: Upload + Preview -->
+    <section class="card" id="step-1">
+        <h2 class="card-title">문서 업로드 & 프리뷰</h2>
+        <p class="card-desc">문서를 업로드하면 원본과 Proby 가이드라인 변환 결과를 나란히 비교할 수 있습니다.</p>
+
+        <!-- Upload Bar -->
+        <div class="upload-bar" id="upload-zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5l5 5"/><path d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"/></svg>
+            <div class="upload-bar-text">
+                파일을 드래그하거나 <strong>클릭하여 선택</strong>
+                <span class="supported">.md .txt .docx</span>
+            </div>
+        </div>
+        <input type="file" id="file-input" accept=".md,.txt,.docx" style="display:none">
+
+        <div class="upload-bar-file hidden" id="file-info">
+            <div class="file-icon">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L14 2.586A2 2 0 0012.586 2H4zm8 1.414L15.586 7H13a1 1 0 01-1-1V3.414zM4 4h6v2a3 3 0 003 3h2v7H4V4z"/></svg>
+            </div>
+            <span class="file-name" id="file-name"></span>
+            <span class="file-size" id="file-size"></span>
+            <button class="file-remove" id="file-remove" title="제거">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+            </button>
+        </div>
+
+        <div class="upload-bar-loading hidden" id="file-loading">
+            <div class="mini-spinner"></div>
+            <span>.docx 파일을 읽고 있습니다…</span>
+        </div>
+
+        <!-- Diff Area (hidden until converted) -->
+        <div class="diff-area hidden" id="diff-area">
+            <div class="diff-header">
+                <div class="diff-stats" id="diff-stats"></div>
+                <div class="diff-legend">
+                    <div class="diff-legend-item"><div class="diff-legend-dot added"></div> Proby 추가</div>
+                    <div class="diff-legend-item"><div class="diff-legend-dot kept"></div> 원본 유지</div>
+                </div>
+            </div>
+            <div class="diff-panels">
+                <div class="diff-panel">
+                    <div class="diff-panel-header original">
+                        <span class="panel-tag">원본</span> 업로드된 문서
+                    </div>
+                    <div class="diff-panel-body original-body" id="original-content"></div>
+                </div>
+                <div class="diff-panel">
+                    <div class="diff-panel-header proby">
+                        <span class="panel-tag">Proby</span> 가이드라인 변환
+                    </div>
+                    <div class="diff-panel-body" id="proby-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <div>
+                <button class="btn btn-primary" id="btn-convert" disabled>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 01.192.41l-1.966 2.36a.25.25 0 01-.384 0l-1.966-2.36a.25.25 0 01.192-.41zm-11 2H4.466a.25.25 0 00.192-.41L2.692 6.23a.25.25 0 00-.384 0L.342 8.59A.25.25 0 00.534 9z"/><path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 11-.771-.636A6.002 6.002 0 0114 8a.5.5 0 01-1 0 5 5 0 00-5-5zM2.5 7.5A.5.5 0 013 8a5 5 0 005 5 4.98 4.98 0 003.857-1.818.5.5 0 01.771.636A6.002 6.002 0 012 8a.5.5 0 01.5-.5z"/></svg>
+                    변환하기
+                </button>
+            </div>
+            <div class="btn-group-right hidden" id="approve-buttons">
+                <button class="btn btn-outline" id="btn-edit">수정 요청</button>
+                <button class="btn btn-success" id="btn-approve">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/></svg>
+                    승인 & 다음
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 2: Email -->
+    <section class="card hidden" id="step-2">
+        <h2 class="card-title">이메일 발송</h2>
+        <p class="card-desc">가이드라인을 전달할 대상의 이메일 주소를 입력하세요.</p>
+
+        <div class="approval-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            <span class="approval-banner-text">가이드라인이 승인되었습니다</span>
+        </div>
+
+        <div class="input-group" style="margin-top: 24px;">
+            <label class="input-label">수신 이메일</label>
+            <input class="input-field" type="email" id="email-input" placeholder="email@example.com" autocomplete="off">
+            <p class="input-hint">Enter 키를 눌러 여러 이메일을 추가할 수 있습니다.</p>
+        </div>
+        <div class="email-chips" id="email-chips"></div>
+
+        <div class="btn-group">
+            <button class="btn btn-outline" id="btn-back-1">이전</button>
+            <button class="btn btn-primary" id="btn-send" disabled>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M15.854.146a.5.5 0 01.11.54l-5.819 14.547a.5.5 0 01-.928.086l-2.73-5.477L.933 7.07a.5.5 0 01.086-.928L15.566.023a.5.5 0 01.288.123zM6.636 10.07l2.076 4.163 4.244-10.612L6.636 10.07zM3.131 7.07l4.163 2.076L13.744 2.8 3.131 7.07z"/></svg>
+                보내기
+            </button>
+        </div>
+    </section>
+
+    <!-- Step 3: Complete -->
+    <section class="card hidden" id="step-3">
+        <div class="complete-icon">
+            <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20l5.5 5.5L28 14"/></svg>
+        </div>
+        <h2 class="complete-title">발송 완료!</h2>
+        <p class="complete-desc" id="complete-desc"></p>
+        <div class="complete-emails" id="complete-emails"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-primary" id="btn-restart">새 문서 변환하기</button>
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+
+<div class="sending-overlay" id="sending-overlay">
+    <div class="spinner"></div>
+    <div class="sending-text">Gmail API로 가이드라인을 전송하고 있습니다…</div>
+</div>
+
+<script>
+const PROBY_RULES = {
+    warmup: [
+        '이름과 나이를 포함해서 간단하게 자기 소개를 부탁드립니다.',
+        '주말이나, 여가 시간이 났을 때 어떻게 시간을 보내는 것을 가장 선호하시나요?'
+    ],
+    defaultRules: [
+        'Desired insight가 도출될 때까지 최소 2개, 최대 10개의 질문 내에서 추가 질문을 자유분방하게 제시',
+        '"동일하거나, 유사한" 표현과 취지의 질문을 반복하는 일은 절대로 없어야함'
+    ],
+    defaultTime: 40
+};
+
+let uploadedFile = null;
+let fileContent = '';
+let fileBase64 = '';
+let emails = [];
+let currentStep = 1;
+let isConverted = false;
+
+const $ = id => document.getElementById(id);
+const mainContainer = $('main-container');
+const uploadZone = $('upload-zone');
+const fileInput = $('file-input');
+const fileInfo = $('file-info');
+const btnConvert = $('btn-convert');
+const btnSend = $('btn-send');
+const emailInput = $('email-input');
+const emailChips = $('email-chips');
+
+/* ── Upload ── */
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+
+function handleFile(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['md', 'txt', 'docx'].includes(ext)) {
+        alert('.md, .txt, .docx 파일만 지원됩니다.');
+        return;
+    }
+    uploadedFile = file;
+    $('file-name').textContent = file.name;
+    $('file-size').textContent = formatBytes(file.size);
+    uploadZone.classList.add('hidden');
+    fileInfo.classList.remove('hidden');
+    isConverted = false;
+    $('diff-area').classList.add('hidden');
+    $('approve-buttons').classList.add('hidden');
+
+    const b64Reader = new FileReader();
+    b64Reader.onload = e => {
+        fileBase64 = e.target.result.split(',')[1] || '';
+    };
+    b64Reader.readAsDataURL(file);
+
+    if (ext === 'docx') {
+        btnConvert.disabled = true;
+        $('file-loading').classList.remove('hidden');
+        const reader = new FileReader();
+        reader.onload = async e => {
+            try {
+                const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+                fileContent = result.value;
+                btnConvert.disabled = false;
+            } catch (err) {
+                alert('DOCX 파일을 읽는 중 오류가 발생했습니다: ' + err.message);
+                fileContent = '';
+            }
+            $('file-loading').classList.add('hidden');
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        btnConvert.disabled = false;
+        const reader = new FileReader();
+        reader.onload = e => { fileContent = e.target.result; };
+        reader.readAsText(file);
+    }
+}
+
+$('file-remove').addEventListener('click', () => {
+    uploadedFile = null; fileContent = ''; isConverted = false;
+    fileInfo.classList.add('hidden');
+    $('file-loading').classList.add('hidden');
+    uploadZone.classList.remove('hidden');
+    btnConvert.disabled = true;
+    fileInput.value = '';
+    $('diff-area').classList.add('hidden');
+    $('approve-buttons').classList.add('hidden');
+    mainContainer.classList.remove('wide');
+});
+
+function formatBytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+}
+
+/* ── Convert ── */
+btnConvert.addEventListener('click', () => {
+    if (!fileContent.trim()) { alert('파일 내용이 비어 있습니다.'); return; }
+
+    const originalHTML = renderOriginalMarkdown(fileContent);
+    const { html: probyHTML, stats } = convertToProbyGuideline(fileContent);
+
+    $('original-content').innerHTML = originalHTML;
+    $('proby-content').innerHTML = probyHTML;
+    $('diff-stats').innerHTML =
+        `<span class="stat-add">+${stats.addedSections}개 섹션 추가</span>` +
+        `<span>·</span>` +
+        `<span class="stat-add">+${stats.addedBlocks}개 Q블록 구조화</span>` +
+        `<span>·</span>` +
+        `<span>원본 질문 ${stats.originalQuestions}개 유지</span>`;
+
+    $('diff-area').classList.remove('hidden');
+    $('approve-buttons').classList.remove('hidden');
+    mainContainer.classList.remove('narrow');
+    isConverted = true;
+
+});
+
+
+/* ── Render original document as simple HTML ── */
+function renderOriginalMarkdown(raw) {
+    const lines = raw.split('\n');
+    let html = '';
+    let inList = false;
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) { if (inList) { html += '</ul>'; inList = false; } continue; }
+        if (trimmed.startsWith('# '))      { if (inList) { html += '</ul>'; inList = false; } html += `<h1>${esc(trimmed.slice(2))}</h1>`; continue; }
+        if (trimmed.startsWith('## '))     { if (inList) { html += '</ul>'; inList = false; } html += `<h2>${esc(trimmed.slice(3))}</h2>`; continue; }
+        if (trimmed.startsWith('### '))    { if (inList) { html += '</ul>'; inList = false; } html += `<h3>${esc(trimmed.slice(4))}</h3>`; continue; }
+        if (/^[-*]\s+/.test(trimmed))      { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${esc(trimmed.replace(/^[-*]\s+/, ''))}</li>`; continue; }
+        if (/^\d+[\.\)]\s+/.test(trimmed)) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${esc(trimmed.replace(/^\d+[\.\)]\s+/, ''))}</li>`; continue; }
+        if (/^Q?\d+[\.\)]\s*.+/.test(trimmed)) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${esc(trimmed)}</li>`; continue; }
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<p>${esc(trimmed)}</p>`;
+    }
+    if (inList) html += '</ul>';
+    return html || '<p style="color:var(--text-muted);">문서 내용이 비어 있습니다.</p>';
+}
+
+/* ── Proby Converter (returns html + stats) ── */
+function convertToProbyGuideline(raw) {
+    const lines = raw.split('\n');
+    const title = extractTitle(lines) || '인터뷰 가이드라인';
+    const sections = extractSections(lines);
+    let addedSections = 0;
+    let addedBlocks = 0;
+    let originalQuestions = 0;
+
+    let html = '';
+
+    html += `<h1>${esc(title)}</h1>`;
+
+    html += `<div class="diff-added-strong"><h2>개요</h2>`;
+    html += `<p><strong>조사 목적:</strong> ${esc(title)}</p>`;
+    html += `<p><strong>예상 소요 시간:</strong> ${PROBY_RULES.defaultTime}분</p></div>`;
+    addedSections++;
+
+
+    html += `<div class="diff-added-strong"><h2>오리엔테이션</h2>`;
+    html += `<p>안녕하세요, 오늘 인터뷰에 참여해 주셔서 감사합니다. 편하게 이야기해 주시면 됩니다.</p>`;
+    html += `<h3>기본 프로필 & 워밍업</h3>`;
+    html += '<ul>' + PROBY_RULES.warmup.map(q => `<li>${esc(q)}</li>`).join('') + '</ul></div>';
+    addedSections++;
+
+    if (sections.length === 0) {
+        const qs = extractQuestions(lines);
+        sections.push({ title: '주요 질문', questions: qs.length ? qs : ['이 주제에 대해 어떻게 생각하시나요?'] });
+    }
+
+    sections.forEach((sec, si) => {
+        html += `<h2>섹션 #${si + 1}: ${esc(sec.title)}</h2>`;
+        const seeds = pickSeedQuestions(sec.questions);
+        seeds.forEach((q, qi) => {
+            originalQuestions++;
+            html += buildQBlock(qi + 1, q);
+            addedBlocks++;
+        });
+    });
+
+    html += `<div class="diff-added-strong"><h2>마무리</h2>`;
+    html += `<p>오늘 이야기 나눈 내용 외에 추가로 말씀하고 싶은 부분이 있으시면 자유롭게 말씀해 주세요.</p>`;
+    html += `<p>인터뷰에 참여해 주셔서 감사합니다. 사례비는 별도로 안내드리겠습니다.</p></div>`;
+    addedSections++;
+
+    return { html, stats: { addedSections, addedBlocks, originalQuestions } };
+}
+
+function buildQBlock(num, question) {
+    const insights = generateInsights(question);
+    let h = `<div class="q-block">`;
+    h += `<span class="tag seed">Seed Question</span>`;
+    h += `<p class="seed-question">Q${num}. ${esc(question)}</p>`;
+    h += `<div class="diff-added"><span class="tag insight">Desired insight</span><ul>`;
+    insights.forEach(i => { h += `<li>${esc(i)}</li>`; });
+    h += `</ul></div></div>`;
+    return h;
+}
+
+function extractTitle(lines) {
+    for (const l of lines) {
+        const m = l.match(/^#{1,2}\s+(.+)/);
+        if (m) return m[1].trim();
+    }
+    for (const l of lines) {
+        const t = l.trim();
+        if (t.length > 3 && t.length < 80) return t;
+    }
+    return '';
+}
+
+function extractSections(lines) {
+    const secs = []; let cur = null;
+    for (const l of lines) {
+        const trimmed = l.trim();
+        const mdHeader = trimmed.match(/^#{2,3}\s+(.+)/);
+        const numberedSection = trimmed.match(/^(?:섹션|Section|Part|파트)\s*[#\d.:]+\s*(.+)/i);
+        const boldSection = trimmed.match(/^\*\*(.{4,})\*\*$/);
+
+        if (mdHeader || numberedSection || boldSection) {
+            if (cur) secs.push(cur);
+            const title = (mdHeader?.[1] || numberedSection?.[1] || boldSection?.[1]).trim();
+            cur = { title, questions: [] };
+            continue;
+        }
+        if (cur) {
+            const qm = matchQuestion(trimmed);
+            if (qm) cur.questions.push(qm);
+        } else {
+            const qm = matchQuestion(trimmed);
+            if (qm) {
+                cur = { title: '주요 질문', questions: [qm] };
+            }
+        }
+    }
+    if (cur) secs.push(cur);
+
+    if (secs.length === 0 || secs.every(s => s.questions.length === 0)) {
+        const allQs = [];
+        for (const l of lines) {
+            const t = l.trim();
+            const q = matchQuestion(t);
+            if (q) allQs.push(q);
+            else if (t.length > 20 && /[을를이가에서으로]/.test(t) && !t.startsWith('#')) {
+                allQs.push(t);
+            }
+        }
+        if (allQs.length > 0) {
+            secs.length = 0;
+            const chunkSize = Math.max(2, Math.ceil(allQs.length / 3));
+            for (let i = 0; i < allQs.length; i += chunkSize) {
+                const chunk = allQs.slice(i, i + chunkSize);
+                secs.push({ title: `주제 ${secs.length + 1}`, questions: chunk });
+            }
+        }
+    }
+    return secs.filter(s => s.questions.length > 0);
+}
+
+function extractQuestions(lines) {
+    const qs = [];
+    for (const l of lines) {
+        const q = matchQuestion(l.trim());
+        if (q) qs.push(q);
+    }
+    return qs;
+}
+
+function matchQuestion(trimmed) {
+    if (!trimmed || trimmed.startsWith('#')) return null;
+    const patterns = [
+        /^[-*]\s+(.{8,})/,
+        /^Q?\d+[\.\)]\s*(.{8,})/i,
+        /^\d+[\.\)]\s*(.{8,})/,
+        /^\s*(.{15,}\?)\s*$/
+    ];
+    for (const p of patterns) {
+        const m = trimmed.match(p);
+        if (m) {
+            const q = m[1].trim().replace(/^\*\*|\*\*$/g, '');
+            if (q.length > 5) return q;
+        }
+    }
+    if (trimmed.endsWith('?') && trimmed.length > 10) {
+        return trimmed;
+    }
+    if (/[?？]/.test(trimmed) && trimmed.length > 10) {
+        return trimmed.replace(/^\*\*|\*\*$/g, '');
+    }
+    return null;
+}
+
+function pickSeedQuestions(questions) {
+    if (questions.length <= 5) return questions;
+    const scored = questions.map(q => {
+        let score = 0;
+        if (q.endsWith('?') || q.includes('？')) score += 3;
+        if (/^Q?\d+[\.\)]/.test(q)) score += 2;
+        if (q.length > 20 && q.length < 120) score += 2;
+        if (/어떻|무엇|왜|언제|어디|어느|얼마|how|what|why/i.test(q)) score += 2;
+        if (q.length < 15) score -= 2;
+        return { q, score };
+    });
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, Math.max(3, Math.ceil(questions.length * 0.6))).map(s => s.q);
+}
+
+function generateInsights(question) {
+    const kw = question.replace(/[?？.,!]/g, '').split(/\s+/).filter(w => w.length > 1);
+    const topic = kw.slice(0, 3).join(' ') || '해당 주제';
+    return [
+        `참여자의 ${topic}에 대한 실제 경험과 맥락 파악`,
+        `${topic} 관련 핵심 니즈와 불만 사항 도출`,
+        `행동 패턴 및 의사결정 기준 이해`
+    ];
+}
+
+function buildAgenda(sections) {
+    const total = PROBY_RULES.defaultTime;
+    const items = ['오리엔테이션 & 워밍업 (5분)'];
+    const body = total - 10;
+    const per = sections.length ? Math.floor(body / sections.length) : body;
+    sections.forEach((s, i) => { items.push(`섹션 #${i + 1}: ${s.title} (${per}분)`); });
+    if (!sections.length) items.push(`본 질문 (${body}분)`);
+    items.push('마무리 (5분)');
+    return items;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ── Approve ── */
+$('btn-approve').addEventListener('click', () => goToStep(2));
+$('btn-edit').addEventListener('click', () => {
+    const note = prompt('수정이 필요한 부분을 알려주세요:');
+    if (note) alert('수정 사항이 접수되었습니다. 실제 환경에서는 AI가 재구성합니다.');
+});
+
+/* ── Email ── */
+emailInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addEmail(emailInput.value.trim()); emailInput.value = ''; }
+});
+
+function addEmail(email) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (email) alert('올바른 이메일 형식을 입력하세요.'); return; }
+    if (emails.includes(email)) return;
+    emails.push(email); renderChips(); btnSend.disabled = false;
+}
+function removeEmail(email) { emails = emails.filter(e => e !== email); renderChips(); btnSend.disabled = emails.length === 0; }
+function renderChips() {
+    emailChips.innerHTML = emails.map(e => `<span class="email-chip">${esc(e)}<button onclick="removeEmail('${e}')">&times;</button></span>`).join('');
+}
+
+/* ── Send ── */
+btnSend.addEventListener('click', async () => {
+    $('sending-overlay').classList.add('active');
+
+    const guidelineHtml = $('proby-content').innerHTML;
+    const title = $('proby-content').querySelector('h1')?.textContent || '인터뷰 가이드라인';
+
+    try {
+        const res = await fetch('http://localhost:8765/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                emails,
+                guidelineHtml,
+                title,
+                fileBase64: fileBase64,
+                fileName: uploadedFile?.name || ''
+            })
+        });
+        const data = await res.json();
+
+        $('sending-overlay').classList.remove('active');
+
+        if (data.ok) {
+            $('complete-desc').textContent = data.message;
+            $('complete-emails').innerHTML = data.sent.map(e =>
+                `<span class="email-chip">${esc(e)}</span>`
+            ).join(' ');
+            if (data.errors?.length) {
+                $('complete-emails').innerHTML += '<p style="color:#E74C3C; font-size:13px; margin-top:12px;">발송 실패: ' +
+                    data.errors.map(e => `${esc(e.email)}`).join(', ') + '</p>';
+            }
+            goToStep(3);
+        } else {
+            alert('발송 실패: ' + (data.error || '알 수 없는 오류'));
+        }
+    } catch (err) {
+        $('sending-overlay').classList.remove('active');
+        alert('서버 연결 실패. server.py가 실행 중인지 확인하세요.\n\n' + err.message);
+    }
+});
+
+/* ── Navigation ── */
+$('btn-back-1').addEventListener('click', () => goToStep(1));
+$('btn-restart').addEventListener('click', () => {
+    uploadedFile = null; fileContent = ''; fileBase64 = ''; emails = []; isConverted = false;
+    fileInfo.classList.add('hidden'); uploadZone.classList.remove('hidden');
+    btnConvert.disabled = true; fileInput.value = '';
+    emailChips.innerHTML = ''; btnSend.disabled = true;
+    $('diff-area').classList.add('hidden'); $('approve-buttons').classList.add('hidden');
+    goToStep(1);
+});
+
+function goToStep(step) {
+    currentStep = step;
+    [1, 2, 3].forEach(s => { $(`step-${s}`).classList.toggle('hidden', s !== step); });
+    mainContainer.classList.toggle('narrow', step !== 1 || !isConverted);
+    updateStepper();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepper() {
+    document.querySelectorAll('.step-item').forEach(el => {
+        const s = +el.dataset.step;
+        el.classList.remove('active', 'done');
+        if (s === currentStep) el.classList.add('active');
+        else if (s < currentStep) el.classList.add('done');
+    });
+    document.querySelectorAll('.step-line').forEach(el => {
+        const l = +el.dataset.line;
+        el.classList.remove('active', 'done');
+        if (l < currentStep) el.classList.add('done');
+        else if (l === currentStep) el.classList.add('active');
+    });
+}
+</script>
+
+</body>
+</html>
