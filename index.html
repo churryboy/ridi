@@ -837,7 +837,8 @@ btnSend.addEventListener('click', async () => {
     const title = $('proby-content').querySelector('h1')?.textContent || '인터뷰 가이드라인';
 
     try {
-        const res = await fetch('http://localhost:8765/api/send', {
+        const apiUrl = location.protocol === 'file:' ? 'http://localhost:8765/api/send' : '/api/send';
+        const res = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
