@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/api/send", "destination": "/api/send" }
+    { "source": "/api/send", "destination": "/api/send" },
+    { "source": "/api/evaluate", "destination": "/api/evaluate" }
   ],
   "headers": [
     {

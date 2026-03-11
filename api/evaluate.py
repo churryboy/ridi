@@ -41,6 +41,7 @@ CRITERIA = """
 
 def evaluate_with_anthropic(transcript: str) -> str:
     import urllib.request
+    import urllib.error
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -79,9 +80,13 @@ def evaluate_with_anthropic(transcript: str) -> str:
     req.add_header("anthropic-version", "2023-06-01")
     req.add_header("Content-Type", "application/json")
 
-    with urllib.request.urlopen(req, timeout=90) as resp:
-        data = json.loads(resp.read())
-    return data["content"][0]["text"].strip()
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            data = json.loads(resp.read())
+        return data["content"][0]["text"].strip()
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Anthropic API 오류 {e.code}: {err_body[:200]}")
 
 
 class handler(BaseHTTPRequestHandler):
