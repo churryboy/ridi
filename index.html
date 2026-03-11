@@ -60,6 +60,23 @@
             background: var(--primary-light); padding: 3px 10px; border-radius: var(--radius-pill);
         }
 
+        /* ── Tabs ── */
+        .tabs {
+            display: flex; gap: 0; padding: 0 32px;
+            max-width: 1280px; margin: 0 auto;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-main);
+        }
+        .tab {
+            padding: 14px 24px; font-size: 14px; font-weight: 600; color: var(--text-muted);
+            background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent;
+            margin-bottom: -1px; transition: all var(--transition);
+        }
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
         /* ── Stepper ── */
         .stepper {
             display: flex; align-items: center; justify-content: center;
@@ -302,6 +319,109 @@
             border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite;
         }
 
+        /* ── 멀티 파일 업로드 리스트 ── */
+        .result-files-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .result-file-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; background: var(--bg-secondary);
+            border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+        }
+        .result-file-item .file-icon { flex-shrink: 0; color: var(--primary); }
+        .result-file-item .file-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-file-item .file-size { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+        .result-file-item .file-remove { border: none; background: none; cursor: pointer; color: var(--text-muted); padding: 2px; border-radius: 4px; flex-shrink: 0; }
+        .result-file-item .file-remove:hover { background: var(--border-light); color: var(--danger); }
+        .result-files-count { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: right; }
+
+        /* ── 평가 아코디언 ── */
+        .eval-accordion { display: flex; flex-direction: column; gap: 10px; }
+        .eval-accordion-item {
+            border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden;
+        }
+        .eval-accordion-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 20px; cursor: pointer;
+            background: var(--bg-main); transition: background 0.15s; user-select: none;
+        }
+        .eval-accordion-header:hover { background: var(--bg-secondary); }
+        .eval-accordion-filename {
+            flex: 1; font-size: 14px; font-weight: 600; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .eval-status-badge {
+            flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+        }
+        .eval-status-badge.pending  { background: var(--bg-secondary); color: var(--text-muted); }
+        .eval-status-badge.loading  { background: var(--primary-light); color: var(--primary); }
+        .eval-status-badge.pass     { background: #d1fae5; color: #065f46; }
+        .eval-status-badge.fail     { background: #fee2e2; color: #991b1b; }
+        .eval-status-badge.tbd      { background: #fef3c7; color: #92400e; }
+        .eval-status-badge.error    { background: #fee2e2; color: #991b1b; }
+        .eval-accordion-chevron { flex-shrink: 0; color: var(--text-muted); transition: transform 0.22s; }
+        .eval-accordion-item.open .eval-accordion-chevron { transform: rotate(180deg); }
+        .eval-accordion-body {
+            display: none; padding: 20px; border-top: 1px solid var(--border-light);
+            background: var(--bg-page);
+        }
+        .eval-accordion-item.open .eval-accordion-body { display: block; }
+
+        /* ── 평가 섹션 카드 (아코디언 내부) ── */
+        .eval-sections { display: flex; flex-direction: column; gap: 10px; }
+        .eval-section {
+            background: var(--bg-main); border: 1px solid var(--border-light);
+            border-radius: var(--radius-md); overflow: hidden;
+        }
+        .eval-section-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px; background: var(--primary-light);
+            border-bottom: 1px solid var(--diff-add-border);
+        }
+        .eval-section-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+        .eval-section-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+        .eval-section-body {
+            padding: 14px 18px; font-size: 13px; line-height: 1.85; color: var(--text-secondary);
+        }
+        .eval-section-body p { margin: 0 0 8px; }
+        .eval-section-body p:last-child { margin-bottom: 0; }
+        .eval-section-body ul { margin: 4px 0 8px 0; padding-left: 18px; }
+        .eval-section-body li { margin-bottom: 10px; }
+        .eval-section-body strong { color: var(--text-primary); font-weight: 600; }
+        .eval-section-body blockquote {
+            margin: 6px 0 8px 0;
+            padding: 8px 14px;
+            background: #f8faff;
+            border-left: 3px solid var(--primary);
+            border-radius: 0 6px 6px 0;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-style: italic;
+            line-height: 1.7;
+        }
+        .eval-section-body blockquote p { margin: 0; }
+        .eval-section.summary .eval-section-header { background: #f0f9ff; border-color: #bae6fd; }
+        .eval-section.summary .eval-section-badge { background: #0ea5e9; }
+        .eval-verdict {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; padding: 5px 14px;
+            border-radius: 20px; font-size: 12px; font-weight: 700;
+        }
+        .eval-verdict.pass { background: #d1fae5; color: #065f46; }
+        .eval-verdict.fail { background: #fee2e2; color: #991b1b; }
+        .eval-verdict.tbd  { background: #fef3c7; color: #92400e; }
+
+        /* ── 평가 결과 빈 상태 ── */
+        .eval-empty {
+            padding: 40px 24px; background: var(--bg-secondary);
+            border-radius: var(--radius-md); border: 1px dashed var(--border);
+            text-align: center; color: var(--text-muted); font-size: 14px;
+        }
+        .eval-empty strong { color: var(--primary); }
+
         .hidden { display: none !important; }
 
         /* ── Responsive ── */
@@ -328,6 +448,12 @@
     <div class="header-badge">Beta</div>
 </header>
 
+<div class="tabs">
+    <button type="button" class="tab active" data-tab="prep">면접준비</button>
+    <button type="button" class="tab" data-tab="result">면접결과</button>
+</div>
+
+<div id="panel-prep" class="tab-panel active">
 <nav class="stepper" id="stepper">
     <div class="step-item active" data-step="1">
         <div class="step-circle">1</div>
@@ -460,8 +586,44 @@
     </section>
 
 </main>
+</div>
+
+<!-- ─── 면접결과 탭 ─── -->
+<div id="panel-result" class="tab-panel">
+    <main class="main" style="max-width: 900px;">
+        <section class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                <div>
+                    <h2 class="card-title">면접 결과 업로드</h2>
+                    <p class="card-desc">면접 전사 문서를 업로드하세요. 여러 파일을 한 번에 선택할 수 있습니다.</p>
+                </div>
+                <button class="btn btn-primary" id="btn-evaluate" disabled style="flex-shrink:0; margin-top:4px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 00-4 4v1h8V6a4 4 0 00-4-4z"/><path d="M4 10v11a1 1 0 001 1h14a1 1 0 001-1V10"/></svg>
+                    전체 평가하기
+                </button>
+            </div>
+
+            <div class="upload-bar result-upload-bar" id="result-upload-zone" style="margin-top:16px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5l5 5"/><path d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"/></svg>
+                <div class="upload-bar-text">
+                    파일을 드래그하거나 <strong>클릭하여 선택</strong>
+                    <span class="supported">.md .txt .docx (여러 파일 선택 가능)</span>
+                </div>
+            </div>
+            <input type="file" id="result-file-input" accept=".md,.txt,.docx" multiple style="display:none">
+            <div id="result-files-list" class="result-files-list"></div>
+        </section>
+
+        <section class="card" id="eval-result-card" style="display:none;">
+            <h2 class="card-title" style="margin-bottom:4px;">평가 결과</h2>
+            <p class="card-desc">리디 바레이저 기준(Decision making, Communication, Work ethics)으로 평가합니다. 파일명을 클릭하면 상세 결과를 확인할 수 있습니다.</p>
+            <div id="eval-accordion" class="eval-accordion" style="margin-top:16px;"></div>
+        </section>
+    </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 
 <div class="sending-overlay" id="sending-overlay">
     <div class="spinner"></div>
@@ -905,6 +1067,225 @@ function updateStepper() {
         else if (l === currentStep) el.classList.add('active');
     });
 }
+
+/* ─── 탭 전환 ─── */
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const id = tab.dataset.tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + id).classList.add('active');
+    });
+});
+
+/* ─── 면접결과: 멀티 업로드 ─── */
+// { id, file, name, ext, content, status: 'pending'|'loading'|'done'|'error', evaluation, verdict }
+let resultFiles = [];
+let evalIdCounter = 0;
+
+const resultUploadZone = document.getElementById('result-upload-zone');
+const resultFileInput = document.getElementById('result-file-input');
+const btnEvaluate = document.getElementById('btn-evaluate');
+
+resultUploadZone.addEventListener('click', () => resultFileInput.click());
+resultUploadZone.addEventListener('dragover', e => { e.preventDefault(); resultUploadZone.classList.add('dragover'); });
+resultUploadZone.addEventListener('dragleave', () => resultUploadZone.classList.remove('dragover'));
+resultUploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    resultUploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) addResultFiles(Array.from(e.dataTransfer.files));
+});
+resultFileInput.addEventListener('change', () => {
+    if (resultFileInput.files.length) addResultFiles(Array.from(resultFileInput.files));
+    resultFileInput.value = '';
+});
+
+function addResultFiles(files) {
+    const docExts = ['md', 'txt', 'docx'];
+    let added = 0;
+    for (const file of files) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!docExts.includes(ext)) continue;
+        if (resultFiles.find(f => f.name === file.name)) continue;
+        const item = { id: ++evalIdCounter, file, name: file.name, ext, content: '', status: 'pending', evaluation: '', verdict: '' };
+        resultFiles.push(item);
+        readResultFileContent(item);
+        added++;
+    }
+    if (added === 0 && files.length > 0) alert('.md .txt .docx 파일만 지원됩니다.');
+    renderResultFilesList();
+    updateEvaluateButton();
+}
+
+function readResultFileContent(item) {
+    if (item.ext === 'docx') {
+        const reader = new FileReader();
+        reader.onload = async e => {
+            try {
+                const r = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+                item.content = r.value;
+            } catch { item.content = ''; }
+            updateEvaluateButton();
+            renderResultFilesList();
+        };
+        reader.readAsArrayBuffer(item.file);
+    } else {
+        const reader = new FileReader();
+        reader.onload = e => { item.content = e.target.result; updateEvaluateButton(); renderResultFilesList(); };
+        reader.readAsText(item.file);
+    }
+}
+
+function removeResultFile(id) {
+    resultFiles = resultFiles.filter(f => f.id !== id);
+    renderResultFilesList();
+    renderAccordion();
+    updateEvaluateButton();
+    document.getElementById('eval-result-card').style.display = resultFiles.length ? '' : 'none';
+}
+
+function updateEvaluateButton() {
+    btnEvaluate.disabled = !resultFiles.some(f => f.content && f.status !== 'loading');
+}
+
+function renderResultFilesList() {
+    const list = document.getElementById('result-files-list');
+    if (!resultFiles.length) { list.innerHTML = ''; return; }
+    list.innerHTML = resultFiles.map(item => `
+        <div class="result-file-item" id="rfi-${item.id}">
+            <span class="file-icon">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L14 2.586A2 2 0 0012.586 2H4zm8 1.414L15.586 7H13a1 1 0 01-1-1V3.414zM4 4h6v2a3 3 0 003 3h2v7H4V4z"/></svg>
+            </span>
+            <span class="file-name">${esc(item.name)}</span>
+            <span class="file-size">${formatBytes(item.file.size)}</span>
+            <button class="file-remove" onclick="removeResultFile(${item.id})" title="제거">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/></svg>
+            </button>
+        </div>`).join('') + (resultFiles.length > 1 ? `<div class="result-files-count">${resultFiles.length}개 파일 선택됨</div>` : '');
+}
+
+/* ─── 평가 결과 렌더링 ─── */
+function detectVerdict(text) {
+    const passMatch = /Pass\s*(?:권고|추천)?/i.test(text);
+    const failMatch = /Fail\s*(?:권고|추천)?/i.test(text);
+    if (passMatch && !failMatch) return 'pass';
+    if (failMatch) return 'fail';
+    return 'tbd';
+}
+
+function renderEvaluationSections(text) {
+    const sectionRegex = /^###\s+(.+)$/gm;
+    const matches = [];
+    let m;
+    while ((m = sectionRegex.exec(text)) !== null) {
+        matches.push({ index: m.index, title: m[1], end: m.index + m[0].length });
+    }
+    if (matches.length === 0) {
+        return `<div class="eval-section"><div class="eval-section-body">${marked.parse(text)}</div></div>`;
+    }
+    const parts = [];
+    if (matches[0].index > 0) {
+        const pre = text.slice(0, matches[0].index).trim();
+        if (pre) parts.push(`<div class="eval-section"><div class="eval-section-body">${marked.parse(pre)}</div></div>`);
+    }
+    matches.forEach((sec, i) => {
+        const bodyText = text.slice(sec.end, i + 1 < matches.length ? matches[i + 1].index : text.length).trim();
+        const titleRaw = sec.title;
+        const isSummary = /종합|summary|verdict/i.test(titleRaw);
+        const numMatch = titleRaw.match(/^(\d{1,2})\./);
+        const badge = numMatch ? numMatch[1] : (isSummary ? '✓' : (i + 1));
+        let verdictHtml = '';
+        if (isSummary) {
+            const v = detectVerdict(bodyText);
+            const labels = { pass: '✓ Pass 권고', fail: '✗ Fail 권고', tbd: '― 검토 필요' };
+            verdictHtml = `<div class="eval-verdict ${v}">${labels[v]}</div>`;
+        }
+        parts.push(`
+            <div class="eval-section ${isSummary ? 'summary' : ''}">
+                <div class="eval-section-header">
+                    <span class="eval-section-badge">${badge}</span>
+                    <span class="eval-section-title">${esc(titleRaw)}</span>
+                </div>
+                <div class="eval-section-body">${marked.parse(bodyText)}${verdictHtml}</div>
+            </div>`);
+    });
+    return `<div class="eval-sections">${parts.join('')}</div>`;
+}
+
+/* ─── 아코디언 토글 ─── */
+function toggleAccordion(id) {
+    const item = document.getElementById('acc-item-' + id);
+    if (item) item.classList.toggle('open');
+}
+
+function renderAccordion() {
+    const container = document.getElementById('eval-accordion');
+    if (!resultFiles.length) { container.innerHTML = ''; return; }
+    document.getElementById('eval-result-card').style.display = '';
+
+    container.innerHTML = resultFiles.map(item => {
+        const statusBadgeHtml = (() => {
+            if (item.status === 'pending') return `<span class="eval-status-badge pending">대기 중</span>`;
+            if (item.status === 'loading') return `<span class="eval-status-badge loading"><span class="mini-spinner" style="width:11px;height:11px;border-width:2px;display:inline-block;"></span> 평가 중</span>`;
+            if (item.status === 'error')   return `<span class="eval-status-badge error">오류</span>`;
+            const v = item.verdict;
+            const labels = { pass: '✓ Pass', fail: '✗ Fail', tbd: '― 검토 필요' };
+            return `<span class="eval-status-badge ${v}">${labels[v] || '완료'}</span>`;
+        })();
+        const bodyHtml = item.status === 'done'
+            ? renderEvaluationSections(item.evaluation)
+            : item.status === 'error'
+                ? `<p style="color:var(--danger)">${esc(item.evaluation)}</p>`
+                : `<p style="color:var(--text-muted)">아직 평가되지 않았습니다.</p>`;
+        return `
+        <div class="eval-accordion-item" id="acc-item-${item.id}">
+            <div class="eval-accordion-header" onclick="toggleAccordion(${item.id})">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0;color:var(--primary)"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L14 2.586A2 2 0 0012.586 2H4zm8 1.414L15.586 7H13a1 1 0 01-1-1V3.414zM4 4h6v2a3 3 0 003 3h2v7H4V4z"/></svg>
+                <span class="eval-accordion-filename">${esc(item.name)}</span>
+                ${statusBadgeHtml}
+                <svg class="eval-accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="eval-accordion-body">${bodyHtml}</div>
+        </div>`;
+    }).join('');
+}
+
+/* ─── 면접결과: 평가하기 ─── */
+btnEvaluate.addEventListener('click', async () => {
+    const apiUrl = location.protocol === 'file:' ? 'http://localhost:8765/api/evaluate' : '/api/evaluate';
+    const targets = resultFiles.filter(f => f.content && f.status !== 'loading');
+    if (!targets.length) { alert('평가할 파일이 없습니다.'); return; }
+
+    document.getElementById('eval-result-card').style.display = '';
+    btnEvaluate.disabled = true;
+
+    for (const item of targets) {
+        item.status = 'loading';
+        renderAccordion();
+        try {
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transcript: item.content })
+            });
+            const data = await res.json();
+            if (data.ok && data.evaluation) {
+                item.evaluation = data.evaluation;
+                item.verdict = detectVerdict(data.evaluation);
+                item.status = 'done';
+            } else {
+                item.evaluation = data.error || '평가 중 오류가 발생했습니다.';
+                item.status = 'error';
+            }
+        } catch (err) {
+            item.evaluation = '서버 연결 실패: ' + err.message;
+            item.status = 'error';
+        }
+        renderAccordion();
+    }
+    updateEvaluateButton();
+});
 </script>
 
 </body>
