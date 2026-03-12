@@ -64,29 +64,36 @@ def evaluate_with_anthropic(transcript: str) -> str:
 
     user = f"""[평가 기준]\n{CRITERIA}\n\n[면접 전사/내용]\n{transcript[:12000]}"""
 
-    body = json.dumps({
-        "model": "claude-3-5-sonnet-20241022",
-        "max_tokens": 4096,
-        "system": system,
-        "messages": [{"role": "user", "content": user}]
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
-        data=body,
-        method="POST",
-    )
-    req.add_header("x-api-key", api_key)
-    req.add_header("anthropic-version", "2023-06-01")
-    req.add_header("Content-Type", "application/json")
-
-    try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            data = json.loads(resp.read())
-        return data["content"][0]["text"].strip()
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Anthropic API 오류 {e.code}: {err_body[:200]}")
+    models_to_try = ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"]
+    last_error = None
+    for model in models_to_try:
+        body = json.dumps({
+            "model": model,
+            "max_tokens": 4096,
+            "system": system,
+            "messages": [{"role": "user", "content": user}]
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=body,
+            method="POST",
+        )
+        req.add_header("x-api-key", api_key)
+        req.add_header("anthropic-version", "2023-06-01")
+        req.add_header("Content-Type", "application/json")
+        try:
+            with urllib.request.urlopen(req, timeout=90) as resp:
+                data = json.loads(resp.read())
+            return data["content"][0]["text"].strip()
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="replace")
+            last_error = (e.code, err_body)
+            if e.code == 404:  # 모델 미지원 → 다음 모델 시도
+                continue
+            raise RuntimeError(f"Anthropic API 오류 {e.code}: {err_body[:200]}")
+    if last_error:
+        code, err_body = last_error
+        raise RuntimeError(f"Anthropic API 오류 {code}: {err_body[:200]}")
 
 
 class handler(BaseHTTPRequestHandler):
