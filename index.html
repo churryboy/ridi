@@ -1174,6 +1174,25 @@ function detectVerdict(text) {
     return 'tbd';
 }
 
+/** 세부 평가 결과(전체 텍스트)에서 '종합 의견' 섹션만 찾아 그 내용으로 Pass/Fail 판단. 아코디언 뱃지는 반드시 이 값만 사용. */
+function getVerdictFromEvaluation(fullText) {
+    if (!fullText || typeof fullText !== 'string') return 'tbd';
+    const sectionRegex = /^###\s+(.+)$/gm;
+    const matches = [];
+    let m;
+    while ((m = sectionRegex.exec(fullText)) !== null) {
+        matches.push({ index: m.index, title: m[1], end: m.index + m[0].length });
+    }
+    for (let i = 0; i < matches.length; i++) {
+        const sec = matches[i];
+        const isSummary = /종합|summary|verdict/i.test(sec.title);
+        if (!isSummary) continue;
+        const bodyText = fullText.slice(sec.end, i + 1 < matches.length ? matches[i + 1].index : fullText.length).trim();
+        return detectVerdict(bodyText);
+    }
+    return detectVerdict(fullText);
+}
+
 function renderEvaluationSections(text) {
     const sectionRegex = /^###\s+(.+)$/gm;
     const matches = [];
@@ -1272,7 +1291,7 @@ btnEvaluate.addEventListener('click', async () => {
             const data = await res.json();
             if (data.ok && data.evaluation) {
                 item.evaluation = data.evaluation;
-                item.verdict = detectVerdict(data.evaluation);
+                item.verdict = getVerdictFromEvaluation(data.evaluation);
                 item.status = 'done';
             } else {
                 item.evaluation = data.error || '평가 중 오류가 발생했습니다.';
