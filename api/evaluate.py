@@ -64,7 +64,13 @@ def evaluate_with_anthropic(transcript: str) -> str:
 
     user = f"""[평가 기준]\n{CRITERIA}\n\n[면접 전사/내용]\n{transcript[:12000]}"""
 
-    models_to_try = ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"]
+    # 3.5/4.x 사용 가능 여부는 워크스페이스별로 다름. 순서대로 시도.
+    models_to_try = [
+        "claude-3-5-sonnet-latest",
+        "claude-3-5-haiku-latest",
+        "claude-haiku-4-5",
+        "claude-3-haiku-20240307",
+    ]
     last_error = None
     for model in models_to_try:
         body = json.dumps({
